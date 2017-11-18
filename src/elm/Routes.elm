@@ -26,3 +26,16 @@ parseLocation location =
 
         Nothing ->
             NotFound
+
+
+pathFromRoute : Route -> Maybe String
+pathFromRoute route =
+    case route of
+        Home ->
+            Just ""
+
+        Contests ->
+            Just "contests"
+
+        _ ->
+            Nothing

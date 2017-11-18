@@ -4,4 +4,5 @@ tmp/
 dist/
 yarn.lock
 .idea/
+src/static/styles/styles.css
 

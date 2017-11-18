@@ -9,9 +9,9 @@
     "url": "https://github.com/moarwick/elm-webpack-starter"
   },
   "scripts": {
-    "start": "webpack-dev-server --hot --inline",
+    "start": "elm-css src/elm/Stylesheets.elm -o src/static/styles && webpack-dev-server --hot --inline",
     "prebuild": "rimraf dist",
-    "build": "webpack",
+    "build": "elm-css src/elm/Stylesheets.elm -o src/static/styles && webpack",
     "reinstall": "npm i rimraf && rimraf node_modules && npm i && elm package install"
   },
   "devDependencies": {
