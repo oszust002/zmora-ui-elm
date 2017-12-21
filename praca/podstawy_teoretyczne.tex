@@ -43,5 +43,11 @@ Ze względu na ogromny wpływ rynku urządzeń mobilnych, Facebook ogłosił w 2
 
 Obecnie React jest jedną z najpopularniejszych bibliotek służących do tworzenia aplikacji internetowych. Jest wykorzystywany w ogromnej ilości znanych serwisów takich jak Facebook, Instagram, Spotify, Netflix czy eBay. 
 \section{Redux}
+Redux jest biblioteką języka JavaScript o otwartym kodzie źródłowym zaprojektowaną do zarządzania stanem aplikacji. Została stworzona w 2015 roku przez Dana Abramova. Działanie Reduxa może być opisane przez trzy zasady:
+\begin{enumerate}
+	\item Istnieje jedno źródło prawdy -- stan całej aplikacji jest przechowywany w pojedyńczym obiekcie, który przechowuje całe drzewo stanu aplikacji
+	\item Stan służy tylko do odczytu -- jedynym sposobem na zmianę stanu jest wysłanie akcji -- obiektu opisującego co się stało, zwykle zawierającego typ akcji, oraz ewentualne dane, które mają wpływ na zmianę stanu
+	\item Zmiany stanu są dokonywane przy użyciu czystych funkcji -- aby określić, w jaki sposób drzewo stanu jest modyfikowane przez akcje, tworzy się funkcje zwane \textit{reducerami}, przyjmujące poprzedni stan i akcję jako argumenty, a zwracające nowy stan
+\end{enumerate}
 
 \section{Elm}
