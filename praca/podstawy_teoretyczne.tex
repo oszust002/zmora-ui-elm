@@ -8,36 +8,40 @@ Aplikacja internetowa jest czymś więcej niż zwykłą stroną internetową. Z 
 	\caption{Podstawowy schemat działania aplikacji internetowej \cite{MaxCdnWebApp}}
 \end{figure}
 %\subsection{Krótki rys historyczny}
-\section{SPA}
-Skrót SPA pochodzi od \textit{Single-page Application}. Jest to aplikacja internetowa działająca wewnątrz przeglądarki, która podczas użytkowania strony nie wymaga odświeżania strony. W tym podejściu, cały niezbędny kod źródłowy -- HTML, JavaScript i CSS -- jest pobierany przy pojedyńczym załadowaniu strony, lub odpowiednie zasoby są ładowane dynamicznie i dodawane do strony jedynie wtedy, kiedy jest to potrzebne. Idea jaka stoi za takim rozwiązaniem, to przede wszystkim lepszy, bardziej naturalny user expierience. Użytkownik po wejściu na stronę, nie musi przy każdej interakcji oczekiwać na ponowne załadowanie się strony, czy też jej odświeżanie.
+\section{SPA}Skrót SPA pochodzi od \textit{Single-page Application}. Jest to aplikacja internetowa działająca wewnątrz przeglądarki, która podczas użytkowania strony nie wymaga odświeżania strony. W tym podejściu, cały niezbędny kod źródłowy --- HTML, JavaScript i CSS --- jest pobierany przy pojedyńczym załadowaniu strony, lub odpowiednie zasoby są ładowane dynamicznie i dodawane do strony jedynie wtedy, kiedy jest to potrzebne. Idea jaka stoi za takim rozwiązaniem, to przede wszystkim lepszy, bardziej naturalny user expierience. Użytkownik po wejściu na stronę, nie musi przy każdej interakcji oczekiwać na ponowne załadowanie się strony, czy też jej odświeżanie.
+
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.6\textwidth]{images/spa}
-	\caption{Podstawowy schemat działania aplikacji internetowej \cite{MaxCdnWebApp}}
+	\caption{Podstawowy cykl życia SPA}
 \end{figure}
 
 Choć koncept SPA zaczął być częściej używany po spopularyzowaniu AJAX'a\footnote{Asynchronous JavaScript And XML}, to tak naprawdę dopiero od kilku lat jest on powszechnie wykorzystywany podczas budowania aplikacji internetowych. Serwisy takie jak Gmail, Google Maps, Twitter czy GitHub są właśnie aplikacjami typu single-page application. Także większość najpopularniejszych bibliotek JavaScript'owych umożliwiają implementację aplikacji internetowej zgodnie z zasadami SPA.
 \subsection{Zalety}
 \begin{itemize}
-	\item Szybkość działania - większość zasobów jest ładowana tylko raz podczas cyklu życia aplikacji, jedynymi informacjami, które są wymieniane z serwerem cały czas, są dane
+	\item Szybkość działania -- większość zasobów jest ładowana tylko raz podczas cyklu życia aplikacji, jedynymi informacjami, które są wymieniane z serwerem cały czas, są dane
 	\item Brak ciągłego przeładowywania strony
-	\item Znacznie prostszy proces wdrożenia aplikacji - jedyne co jest potrzebne to statyczny serwer serwujący minimalnie 3 pliki - pojedynczą stronę HTML, oraz 2 pakiety: jeden zawierający wszystkie style, drugi skupiający w sobie cały kod JavaScriptow'y
-	\item Odciążenie strony serwerowej - serwer zamiast generować za każdym razem pełny kod strony, transmituje jedynie potrzebne w danej chwili dane.
+	\item Znacznie prostszy proces wdrożenia aplikacji -- jedyne co jest potrzebne to statyczny serwer serwujący minimalnie 3 pliki -- pojedynczą stronę HTML, oraz 2 pakiety: jeden zawierający wszystkie style, drugi skupiający w sobie cały kod JavaScriptu
+	\item Odciążenie strony serwerowej -- serwer, zamiast generować za każdym razem pełny kod strony, transmituje jedynie potrzebne w danej chwili dane
 \end{itemize}
 \subsection{Wady}
 \begin{itemize}
-	\item Powolne początkowe uruchomienie strony - wymaga ono załadowania framework'u, oraz przynajmniej części aplikacji, która później już nie jest ponownie ściągana.
-	\item Ze względu na zależność SPA od JavaScript'u, bardzo łatwo o pojawienie się wycieków pamięci pomiędzy długimi okresami czasu między przeładowaniami strony
-	\item
+	\item Powolne początkowe uruchomienie strony -- wymaga ono załadowania frameworku, oraz przynajmniej części aplikacji, która później już nie jest ponownie ściągana.
+	\item Ze względu na zależność SPA od JavaScriptu, bardzo łatwo o pojawienie się wycieków pamięci pomiędzy długimi okresami czasu między przeładowaniami strony
 \end{itemize}
 
 \section{JavaScript}
-JavaScript jest to wysokopoziomowy, słabo typowany, wieloparadgymatowy, skryptowy i interpretowany język programowania stworzony w 1995 roku przez Brendan'a Eich'a dla firmy Netscape.  W roku 1997 organizacja Ecma International wydała na podstawie JavaScript'u standard języka skryptowego nazwany ECMAScript, na którym bazowanych jest większość silników JavaScript'owych.
+JavaScript jest to wysokopoziomowy, słabo typowany, wieloparadgymatowy, skryptowy i interpretowany język programowania stworzony w 1995 roku przez Brendana Eicha dla firmy Netscape.  W roku 1997 organizacja Ecma International wydała na podstawie JavaScriptu standard języka skryptowego nazwany ECMAScript, na którym bazowanych jest większość silników JavaScript'owych.
 
-JavaScript jest jedną z trzech głównych technologii wykorzystywanych przy tworzeniu treści związanych z siecią internetową. Obecnie 94,9\% spośród 10 milionów najbardziej popularnych stron internetowych wykorzystuje JavaScript (stan na grudzień 2017\cite{JSUsage})
+JavaScript jest jedną z trzech głównych technologii wykorzystywanych przy tworzeniu treści związanych z siecią internetową. Obecnie 94,9\% spośród 10 milionów najbardziej popularnych stron internetowych wykorzystuje JavaScript (stan na grudzień 2017\cite{JSUsage}).
+
 \section{React.js}
+React jest biblioteką języka JavaScript, wykorzystywaną do tworzenia graficznych interfejsów użytkownika. Pozwala ona na tworzenie rozbudowanych aplikacji internetowych, które używają danych i mogą zmieniać swoją zawartość w czasie bez ponownego ładowania strony. Biblioteka została stworzona przez jednego z programistów Facebooka, Jordana Walke, który zainspirował się rozszerzeniem języka PHP, XHP, także stworzonym przez Facebooka. Pierwsze wersje biblioteki zostały użyte w 2011 roku na stronie aktualności Facebooka, a od 2012 roku jest ona wykorzystywana w~serwisie Instagram. Od 2013 roku React stał się wolnym oprogramowaniem, co spowodowało jego nagły wzrost popularności, a także umożliwiło społeczności  pomoc w rozwoju oprogramowania.
 
+Ze względu na ogromny wpływ rynku urządzeń mobilnych, Facebook ogłosił w 2015 roku bibliotekę React Native, pozwalającą na korzystanie z architektury Reacta podczas budowania aplikacji mobilnych. To co wyróżniało tę bibliotekę od dotychczasowych sposobów tworzenia mobilnego oprogramowania, to brak konieczności powielania funkcjonalności dla każdej platformy z osobna. React Native pozwalał na wykorzystanie tego samego kodu źródłowego zarówno w aplikacji dla systemu Android jak i iOS.
+
+Obecnie React jest jedną z najpopularniejszych bibliotek służących do tworzenia aplikacji internetowych. Jest wykorzystywany w ogromnej ilości znanych serwisów takich jak Facebook, Instagram, Spotify, Netflix czy eBay. 
 \section{Redux}
 
 \section{Elm}
