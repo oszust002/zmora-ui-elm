@@ -65,8 +65,8 @@ Choć główne założenia Virtual DOM-u w Elmie i React'cie są podobne, to jeg
 \end{enumerate}
 Dodatkowo zostały przyjęte następujące założenia, które sprawiają, że przeprowadzony test jest sprawiedliwy:
 \begin{enumerate}
-	\item Brak zgrupowanych zdarzeń -- oznacza to, ze zamiast generować zdarzenia w pojedyńczej pętli, algorytm tworzy jedno zdarzenie na raz, przechodząc do następnego dopiero po wyrenderowaniu całego widoku. Gdyby takie założenie nie zostało przyjęte, to przykładowo w przypadku dodawania wpisów, zmiany następowałyby na tyle szybko, że zamiast wyświetlić 100 klatek, przeglądarka wyświetliłaby tylko jedną.
-	\item Brak użycia \lstinline{requestAnimationFrame} -- funkcja ta informuje przeglądarkę o zamiarze wykonania animacji i żąda od przeglądarki wywołania określonej funkcji w celu odświeżenia animacji przed następną zmianą w widoku. Oznacza to, że odświeżenie animacji jest wyrównane do 60 razy na sekundę, niezależnie od tego jak wiele klatek wygeneruje JavaScript. Elm wykorzystuje tą funkcję do pomijania części klatek, które i tak nie będą widoczne dla użytkownika, W z związku z realistycznym scenariuszem, oraz brakiem podobnej optymalizacji w innych implementacjach, funkcja ta musiała zostać usunięta z Elma w ramach przeprowadzanego testu.
+	\item Brak zgrupowanych zdarzeń -- oznacza to, że zamiast generować zdarzenia w pojedynczej pętli, algorytm tworzy jedno zdarzenie na raz, przechodząc do następnego dopiero po wyrenderowaniu całego widoku. Gdyby takie założenie nie zostało przyjęte, to przykładowo w przypadku dodawania wpisów, zmiany następowałyby na tyle szybko, że zamiast wyświetlić 100 klatek, przeglądarka wyświetliłaby tylko jedną.
+	\item Brak użycia \lstinline{requestAnimationFrame} -- funkcja ta informuje przeglądarkę o zamiarze wykonania animacji i żąda od przeglądarki wywołania określonej funkcji w celu odświeżenia animacji przed następną zmianą w widoku. Oznacza to, że odświeżenie animacji jest wyrównane do 60 razy na sekundę, niezależnie od tego, jak wiele klatek wygeneruje JavaScript. Elm wykorzystuje tą funkcję do pomijania części klatek, które i tak nie będą widoczne dla użytkownika. W z związku z realistycznym scenariuszem, oraz brakiem podobnej optymalizacji w innych implementacjach, funkcja ta musiała zostać usunięta z Elma w ramach przeprowadzanego testu.
 \end{enumerate}
 
 \begin{figure}[h]
@@ -80,8 +80,8 @@ Na rysunku \ref{fig:performanceComparision} można zauważyć, że zostały wzi�
 
 Wyniki testu pokazują, że implementacja aplikacji w Elmie jest szybsza o ponad sekundę. Twórca Elma w jednym ze swoich artykułów \cite{blazingFastHtml} pisze o wykorzystanych technikach, które są powodem takich wyników:
 \begin{enumerate}
-	\item Używanie tablic zamiast słowników -- iteracja po tablicy jest zawsze o wiele szybszaą operacją niż przechodzenie po kluczach słownika
-	\item Minimalizacja alokacji -- garbage collection jest jednym z kosztownych elementów w analizowanych implementacjach. Im mniej obiektów jest alokowanych, tym lepsza jest wydajność aplikacji. Sposób wykorzystany w Elmie polega na alokowaniu obiektów z pustymi polami. Dzięki temu silniki JavaScriptowe radzą sobie o wiele lepiej z optymalizacją takich obiektów, a obiekt nie zmienia się, nawet gdy wypełnimy go większą ilością informacji.
+	\item Używanie tablic zamiast słowników -- iteracja po tablicy jest zawsze o wiele szybsza operacją niż przechodzenie po kluczach słownika.
+	\item Minimalizacja ilości alokacji -- garbage collection jest jednym z kosztownych elementów w analizowanych implementacjach. Im mniej obiektów jest alokowanych, tym lepsza jest wydajność aplikacji. Sposób wykorzystany w Elmie polega na alokowaniu obiektów z pustymi polami. Dzięki temu silniki JavaScriptowe radzą sobie o wiele lepiej z optymalizacją takich obiektów, a obiekt nie zmienia się, nawet gdy wypełnimy go większą ilością informacji.
 	\item Unikanie powolnych operacji, takich jak pobieranie konkretnego elementu z tablicy. 
 \end{enumerate}
 \section{Jednokierunkowe flow aplikacji}
