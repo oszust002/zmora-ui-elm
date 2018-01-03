@@ -2,20 +2,20 @@
 Choć porównywanie kombinacji bibliotek z językiem programowania wydaje się dziwne, to jeżeli spojrzy się na funkcjonalności oferowane przez Reacta i Reduxa w porównaniu do możliwości Elma, można zauważyć pewne podobieństwa w sposobie budowania aplikacji. W tym rozdziale zostały opisane funkcjonalności, które są oferowane przez oba rozwiązania, oraz różnice występujące między Reactem i~Reduxem a Elmem dla każdej z funkcjonalności.
 
 \section{Virtual DOM i składnia}
-% Czym jest DOM?
+\subsection{Document Object Model}
 DOM \footnote{z. ang. Document Object Model} jest niezależnym od platformy i języka programowania interfejsem, który pozwala programom i skryptom na dynamiczny dostęp i aktualizację treści, struktury i stylu dokumentu. Kiedy strona internetowa jest ładowana, przeglądarka tworzy DOM strony, będący obiektową reprezentacją dokumentu HTML. Służy ona jako interfejs umożliwiający pobieranie oraz modyfikację elementów HTML, które w DOM-ie są zdefiniowane jako obiekty.
 
-% Dlaczego DOM jest powolny?
+\subsection{Dlaczego DOM jest powolny?}
 Każda akcja na stronie powoduje zmianę DOM-u. Ze względu na jego drzewiastą strukturę, sama modyfikacja DOM-u jest szybka. Jednak każdy z modyfikowanych elementów oraz wszystkie jego dzieci muszą dodatkowo przejść przez dwa kosztowne etapy:
 \begin{enumerate}
 	\item Reflow będący procesem, podczas którego przeliczane zostają wymiary oraz pozycja elementu. Dokładnie ten sam proces jest uruchamiany na węzłach dzieci, a także elementach, które pojawiają się w DOM-ie później niż główny element. Reflow jest kosztowny, ponieważ zmiana pojedynczego elementu w strukturze DOM-u może spowodować wywołanie Reflow na wielu innych elementach.
 	\item Repaint, w którym niektóre partie ekranu muszą zostać zaktualizowane, czy to ze względu na modyfikacje wymiarów i~pozycji elementu, czy przez zmiany stylistyczne, takie jak zmiana koloru tła. Etap ten jest kosztowny ponieważ przeglądarka musi sprawdzić widoczność innych węzłów w~DOM-ie.
 \end{enumerate} 
 
-% Czym jest Virtual DOM?
+\subsection{Virtual DOM}
 Virtual DOM jest to lekka, niezależna od przeglądarki abstrakcyjna reprezentacja DOM-u. Służy ona między innymi do zminimalizowania kosztu stworzonego przez etapy Reflow i Repaint. Zamiast tworzyć za każdym razem drzewo składające się z węzłów DOM-u, Virtual DOM pozwala na stworzenie tego drzewa przy pomocy abstrakcyjnych węzłów, które są odpowiednikami faktycznych elementów DOM-u. Dzięki temu wszystkie operacje modyfikujące widok mogą być wykonane na abstrakcyjnej strukturze, a dopiero końcowy rezultat powoduje modyfikację faktycznego DOM-u.
 
-% Diff algorithm
+\subsection{Algorytm porównywania różnic}
 Koncepcja Virtual DOM-u została wykorzystana do tego, aby w każdej klatce budować zupełnie nową scenę. Choć taka operacja wydaje się kosztowna, to tak naprawdę zbudowanie pełnego drzewa Virtual DOM-u jest szybkie, i jest wykorzystywane przy każdej aktualizacji widoku. W momencie gdy następuje zmiana powodująca modyfikację widoku, algorytm porównuje ze sobą stare i nowe drzewo Virtual DOM-u. Wszystkie komponenty, w których nastąpiła jakakolwiek zmiana są oznaczane specjalną flagą, która określa, że dany węzeł został zmodyfikowany. Na tej podstawie budowana jest dokładna lista zmian jakie nastąpiły w widoku. Następnie lista ta jest wykorzystywana do modyfikacji faktycznego DOM-u, lecz nie jako pojedynczo wprowadzane zmiany, a jedna aktualizacja drzewa dokumentu. 
 
 \begin{figure}[h]
@@ -25,13 +25,14 @@ Koncepcja Virtual DOM-u została wykorzystana do tego, aby w każdej klatce budo
 	\label{fig:diffAlgorithm}
 \end{figure}
 
-%Reprezentacja w React i Elm - składnia
+\subsection{Reprezentacja w Elmie}
 Zarówno React, jak i Elm posiadają własne implementacje Virtual DOM-u. W Elmie abstrakcyjną reprezentację węzła otrzymujemy przy pomocy funkcji \lstinline{node}, która jako atrybuty przyjmuje tag, listą atrybutów HTML, oraz listę węzłów dzieci:
 \begin{lstlisting}[style=elm-style]
 	node : String -> List Attrbiute -> List Html -> Html
 \end{lstlisting}
 W przypadku użycia tagów HTML, takich jak \lstinline{div}, Elm udostępnia funkcje pomocnicze, które posiadają już uzupełniony atrybut tag, pozostawiając nam do określenia atrybuty węzła oraz jego dzieci. Elm nie ma specjalnej składni, która służyłaby do budowania widoków. Wszystkie elementy, z których budowany jest widok aplikacji, są funkcjami. W przypadku budowania widoku jedynym wymaganiem jest, aby funkcja go budująca zwracała rekord specjalnego typu \lstinline[style=elm-style]{Html msg}, który jest głównym blokiem służącym do tworzenia wyjściowego kodu HTML.
 
+\subsection{Reprezentacja w React}
 W przypadku Reacta mamy do czynienia ze znacznie bardziej rozszerzonym podejściem.  Bazowym elementem reprezentującym abstrakcyjny węzeł Virtual DOM-u jest ReactElement. Analogicznie jak w przypadku funkcji \lstinline{node} w Elmie jest to obiekt posiadający informację o tagu, który reprezentuje, atrybutach zdefiniowanego węzła, oraz listę dzieci. Przykład tworzenia takiego elementu można zobaczyć we fragmencie kodu \ref{listing:jsreactelement}. 
 
 \begin{minipage}{.45\textwidth}
@@ -47,12 +48,13 @@ W przypadku Reacta mamy do czynienia ze znacznie bardziej rozszerzonym podejści
 	\begin{lstlisting}[caption=JSX,style=JavaScript,firstnumber=1,label = listing:jsx]
 	var divHello = (
 	<div className="myclass">
-	Hello world!
+		Hello world!
 	</div>
 	);
 	\end{lstlisting}
 \end{minipage}
 
+\subsection{Test wydajnościowy}
 Biorąc pod uwagę to, że każdy element Virtual DOM-u w React'cie jest zbudowany w podobny sposób, można zauważyć, że w przypadku rozbudowanej aplikacji, kod bardzo szybko staje się skomplikowany i niezrozumiały. Aby tego uniknąć, Facebook stworzył specjalne rozszerzenie składni dla JavaScriptu -- JSX. Z wyglądu przypomina składnię języka HTML, lecz zasadniczo dostarcza cukier syntaktyczny dla funkcji \lstinline[style=JavaScript]{createElement}. Fragmenty kodu \ref{listing:jsx} oraz \ref{listing:jsreactelement} są dokładnie tymi samymi wyrażeniami, z tą różnicą, że w drugim przypadku został wykorzystany JSX. Takie podejście pozwala na użycie JSX-a wewnątrz instrukcji JavaScriptu, przypisywanie go do zmiennych, czy też zwracanie z funkcji. Operacja zachodzi także w drugą stronę, co znaczy, że można korzystać z kodu JavaScriptu wewnątrz składni JSX-a. Taki kod musi być objęty nawiasami klamrowymi, aby odróżnić fragmenty napisane w JavaScript'cie od kodu JSX-a. 
 
 % Test czasu renderowania
@@ -84,7 +86,39 @@ Wyniki testu pokazują, że implementacja aplikacji w Elmie jest szybsza o ponad
 	\item Minimalizacja ilości alokacji -- garbage collection jest jednym z kosztownych elementów w analizowanych implementacjach. Im mniej obiektów jest alokowanych, tym lepsza jest wydajność aplikacji. Sposób wykorzystany w Elmie polega na alokowaniu obiektów z pustymi polami. Dzięki temu silniki JavaScriptowe radzą sobie o wiele lepiej z optymalizacją takich obiektów, a obiekt nie zmienia się, nawet gdy wypełnimy go większą ilością informacji.
 	\item Unikanie powolnych operacji, takich jak pobieranie konkretnego elementu z tablicy. 
 \end{enumerate}
-\section{Jednokierunkowe flow aplikacji}
+
+\section{Jednokierunkowy przepływ danych}
+\subsection{Komponent prezentacyjny i kontener}
+Aby w ogóle zacząć temat jednokierunkowego przepływu danych w kombinacji React i Redux, trzeba wyjaśnić, czym są komponenty.
+
+W dokumentacji Reacta można znaleźć, że komponenty pozwalają podzielić interfejs na niezależne fragmenty wielokrotnego użytku i myśleć o każdym z fragmentów oddzielnie \cite{reactDocs}. Koncepcyjnie są one podobne do funkcji w JavaScript'cie. Przyjmują dowolne dane wejściowe, które zawarte są w pojedynczym obiekcie \lstinline{props}, a zwracają elementy Reacta, opisujące to, co powinno zostać wyświetlone. Fragmenty \ref{listing:statelesscomp} i \ref{listing:statefulcomp} przedstawiają dwa podstawowe sposoby tworzenia komponentów w React'cie: jako zwykła funkcja JavaScript oraz jako klasa ze standardu ECMAScript 6.
+
+\begin{lstlisting}[style=JavaScript, caption=Funkcyjny komponent bezstanowy, label=listing:statelesscomp]
+function Welcome(props) {
+	return <h1>Hello, {props.name}</h1>;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=JavaScript, caption=Komponent stanowy jako klasa ECMAScript 6, label=listing:statefulcomp]
+class Clock extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {date: new Date()};
+	}
+	render() {
+		return (
+			<div>
+				<h1>It is {this.state.date.toLocaleTimeString()}.</h1>
+			</div>
+		);
+	}
+}
+\end{lstlisting}
+W pierwszym przypadku mamy do czynienia z komponentem funkcyjnym bezstanowym. Zgodnie z~jego nazwą charakteryzuje się brakiem lokalnego stanu oraz zapisem w formie funkcji przyjmującej jako argument obiekt \lstinline{props}, która zwraca elementy Reacta. Komponent tego typu nie pozwala także na zarządzanie jego cyklem życia, czy optymalizacją częstotliwości odświeżania. Aby skorzystać z tych funkcjonalności, należy użyć implementacji za pomocą klasy. Komponenty klasowe umożliwiają dodanie logiki do cyklu życia komponentu, co sprawia, że stają się one czymś więcej niż tylko obiektami opisującymi jakie elementy mają zostać wyświetlone na interfejsie użytkownika.
+
+W kontekście połączenia Reacta i Reduxa często stosuje się inny podział, na komponenty prezentacyjne i kontenery. Różnią się one od siebie przede wszystkim tym, że kontenery są specjalnym rodzajem komponentów, które są świadome istnienia Reduxa. To one odpowiadają między innymi za pobranie danych ze stanu Reduxa, czy wysyłaniu akcji określających, w jaki sposób ma zostać zmieniony stan. Pobieranie danych w kontenerze się to poprzez użycie funkcji \lstinline{connect} ze specjalnej biblioteki \textit{react-redux} zawierającej kod wymagany do współpracy Reacta z Reduxem \cite{reduxDocs}. Funkcja \lstinline{connect} przyjmuje jako argument zdefiniowaną przez użytkownika funkcję określającą, który fragment stanu Reduxa ma zostać użyty w kontenerze. W przypadku komponentów prezentacyjnych jedynym źródłem danych są właściwości przekazane za pomocą obiektu \lstinline{props}, a jedynym możliwym sposobem na zmianę stanu są funkcje zwrotne, również przekazane jako część tego obiektu.
+
+Powodem takiego podziału jest przede wszystkim oddzielenie komponentów widoku, które mogą być używane wielokrotnie i nie powinny zależeć od implementacji logiki odpowiadającej za pobieranie i zarządzanie danymi.
 
 \section{Niemutowalność obiektów}
 
