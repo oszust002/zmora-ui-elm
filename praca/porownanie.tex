@@ -1,4 +1,4 @@
-\chapter{Porównanie} \label{chap:porownanie}
+\chapter{Porównanie architektury} \label{chap:porownanie}
 Choć porównywanie kombinacji bibliotek z językiem programowania wydaje się dziwne, to jeżeli spojrzy się na funkcjonalności oferowane przez Reacta i Reduxa w porównaniu do możliwości Elma, można zauważyć pewne podobieństwa w sposobie budowania aplikacji. W tym rozdziale zostały opisane funkcjonalności, które są oferowane przez oba rozwiązania, oraz różnice występujące między Reactem i~Reduxem a Elmem dla każdej z funkcjonalności.
 
 \section{Virtual DOM i składnia}
@@ -88,11 +88,31 @@ Wyniki testu pokazują, że implementacja aplikacji w Elmie jest szybsza o ponad
 \end{enumerate}
 
 \section{Jednokierunkowy przepływ danych}
+\subsection{Architektura języka Elm}
+Jednokierunkowy przepływ danych w języku Elm jest często określany jako \textit{Architektura języka Elm} lub \textit{Model-View-Update}. Niezależnie od rozmiaru tworzonej aplikacji, każdą z nich można podzielić na trzy całkowicie oddzielone od siebie części:
+\begin{itemize}
+	\item Model -- jest strukturą danych zawierającą wszystkie informacje o stanie aplikacji. W programie jest reprezentowany jako rekord o ściśle określonym typie.
+	\item Update -- sposób, w jaki stan aplikacji jest aktualizowany, reprezentowany przez funkcję przyjmującą jako argumenty komunikat o rodzaju aktualizacji danych oraz dotychczasowy stan aplikacji, a zwracającą nowy, zaktualizowany stan.
+	\item View -- definicja sposobu wyświetlania stanu aplikacji w formie kodu HTML. Jest reprezentowany przez funkcję przyjmującą jako argument aktualny stan aplikacji, a zwracającą reprezentację kodu HTML w formie obiektów Virtual DOM-u.
+\end{itemize}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/elm_data_flow}
+	\caption{Przepływ danych w języku Elm}
+	\label{fig:elmFlow}
+\end{figure}
+\FloatBarrier
+Niezależnie od rodzaju wykonywanej akcji, przepływ danych w języku Elm opiera się o podstawowe struktury zwane wiadomościami. Są to komunikaty zdefiniowane przez programistę w kodzie, które poza typem wiadomości mogą zawierać dane, na podstawie których aktualizowany jest modek. Silnik języka przesyła je wraz z aktualną wersją modelu do funkcji \lstinline{update}, która na podstawie rodzaju wiadomości oraz zawartych w niej danych aktualizuje model. Nowa wersja modelu zostaje następnie przekazana do funkcji \lstinline{view}, która buduje na jego podstawie pełną strukturę opisującą widok. Struktura ta, będąca obiektem typu \lstinline[style=elm-style]{Html}, skonstruowanym przy pomocy funkcji z implementacji Virtual DOM-u, jest następnie przesyłana do silnika Elma, który na jej podstawie aktualizuje drzewo DOM-u.
+
+Elm posiada także dwa dodatkowe rodzaje komunikatów: komendy i subksrypcje. Te pierwsze odpowiadają za wysyłanie wiadomości obsługujących efekty uboczne, takie jak zapytania HTTP. Są one tworzone jako obiekty typu \lstinline[style=elm-style]{Cmd} posiadające w sobie typ wiadomości, jaka ma zostać wywołana. Obiekty takie są wysyłane równocześnie z modelem, jako część zwrotna funkcji \lstinline{update}, która wysyła model do funkcji odpowiadającej za budowę widoku, natomiast samą komendę przekazuje do silnika Elma. Silnik na podstawie podanej komendy wywołuje kolejną aktualizację modelu, jako wiadomość przekazując zawartość komendy. Subskrypcje natomiast, są sposobem na nasłuchiwanie zewnętrznych komunikatów takich jak ruchy myszy, zmiana adresu w przeglądarce, czy też zmiana jej rozmiaru. Są one zdefiniowane podczas uruchomienia aplikacji jako obiekty typu \lstinline[style=elm-style]{Sub}, które podobnie jak w przypadku komend posiadają w sobie typ wiadomości, która po nastąpieniu zewnętrznego zdarzenia jest wysyłana przez silnik języka do funkcji \lstinline{update}.
+
+Prostota tak skonstruowanego przepływu danych pozwala na łatwą analizę działania aplikacji, niezależnie od jej rozmiaru. Programista nie jest zmuszony do zastanawiania się nad skomplikowaną architekturą, dzięki czemu jest w stanie szybko ustalić, w jaki sposób działa aplikacja. Prosty model aktualizacji danych oparty na komunikatach pozwala także na łatwe dodawanie nowych funkcjonalności, ponieważ wiąże się to z dodaniem nowego komunikatu, który jest definiowany niezależnie od poprzednio dodanych wiadomości.
+
 \subsection{Komponent prezentacyjny i kontener}
-Aby w ogóle zacząć temat jednokierunkowego przepływu danych w kombinacji React i Redux, trzeba wyjaśnić, czym są komponenty.
+Aby w ogóle zacząć temat jednokierunkowego przepływu danych w kombinacji React i Redux, trzeba wyjaśnić, czym są komponenty. W przeciwieństwie do Elma, który całą swoją strukturę opiera na funkcjach, React wprowadza specjalny rodzaj struktur umożliwiający zdefiniowanie wyświetlanych widoków.
 
 W dokumentacji Reacta można znaleźć, że komponenty pozwalają podzielić interfejs na niezależne fragmenty wielokrotnego użytku i myśleć o każdym z fragmentów oddzielnie \cite{reactDocs}. Koncepcyjnie są one podobne do funkcji w JavaScript'cie. Przyjmują dowolne dane wejściowe, które zawarte są w pojedynczym obiekcie \lstinline{props}, a zwracają elementy Reacta, opisujące to, co powinno zostać wyświetlone. Fragmenty \ref{listing:statelesscomp} i \ref{listing:statefulcomp} przedstawiają dwa podstawowe sposoby tworzenia komponentów w React'cie: jako zwykła funkcja JavaScript oraz jako klasa ze standardu ECMAScript 6.
-
+\newpage % Simple hack to remove first line of listing from page end
 \begin{lstlisting}[style=JavaScript, caption=Funkcyjny komponent bezstanowy, label=listing:statelesscomp]
 function Welcome(props) {
 	return <h1>Hello, {props.name}</h1>;
@@ -119,6 +139,23 @@ W pierwszym przypadku mamy do czynienia z komponentem funkcyjnym bezstanowym. Zg
 W kontekście połączenia Reacta i Reduxa często stosuje się inny podział, na komponenty prezentacyjne i kontenery. Różnią się one od siebie przede wszystkim tym, że kontenery są specjalnym rodzajem komponentów, które są świadome istnienia Reduxa. To one odpowiadają między innymi za pobranie danych ze stanu Reduxa, czy wysyłaniu akcji określających, w jaki sposób ma zostać zmieniony stan. Pobieranie danych w kontenerze się to poprzez użycie funkcji \lstinline{connect} ze specjalnej biblioteki \textit{react-redux} zawierającej kod wymagany do współpracy Reacta z Reduxem \cite{reduxDocs}. Funkcja \lstinline{connect} przyjmuje jako argument zdefiniowaną przez użytkownika funkcję określającą, który fragment stanu Reduxa ma zostać użyty w kontenerze. W przypadku komponentów prezentacyjnych jedynym źródłem danych są właściwości przekazane za pomocą obiektu \lstinline{props}, a jedynym możliwym sposobem na zmianę stanu są funkcje zwrotne, również przekazane jako część tego obiektu.
 
 Powodem takiego podziału jest przede wszystkim oddzielenie komponentów widoku, które mogą być używane wielokrotnie i nie powinny zależeć od implementacji logiki odpowiadającej za pobieranie i zarządzanie danymi.
+
+\subsection{Przepływ danych w Redux i lokalny stan komponentów}
+Twórca Reduxa tworząc implementację biblioteki, inspirował się między innymi Elmem, w związku z~czym sposób przepływu danych występujący w bibliotece Redux jest bardzo zbliżony do implementacji z języka Elm, a pewne fragmenty Reduxa można porównać do części architektury \textit{Model-Update-View}.
+
+Odpowiednikiem modelu jest pojedyncze drzewo stanu zawierające w sobie wszystkie dane aplikacji. Różnica występująca między implementacją w Elmie jest brak ograniczenia co do typu, co pozwala na dowolną modyfikację drzewa, bez zbędnej potrzeby wcześniejszego definiowania domyślnych wartości. 
+
+Tak jak w Elmie podstawową strukturą służącą do komunikowania o aktualizacji jest wiadomość, tak w przypadku Reduxa wykorzystywane są akcje. Są to zwykłe obiekty JavaScriptu posiadające informacje o rodzaju komunikatu, a także mogące posiadać dane wykorzystane do aktualizacji. W przeciwieństwie do Elma Redux nie posiada dodatkowych komunikatów służących do obsługi efektów ubocznych czy zdarzeń z zewnątrz, co zmusza programistę do skorzystania z innych bibliotek obsługujących takie zdarzenia. Przykładem tutaj może być biblioteka \textit{redux-saga}, służąca do obsługi efektów ubocznych \cite{reduxSaga}, która dodatkowo wspiera komunikację z Reduxem.
+
+Aktualizacja danych odbywa się za pomocą funkcji zwanych \textit{reducer'ami}. Są to funkcje bez efektów ubocznych, które na podstawie dotychczasowego stanu oraz akcji zwracają nowe, zaktualizowane drzewo stanu. W przypadku Reduxa programista nie jest zmuszony do tworzenia jednej funkcji odpowiadającej za wszystkie aktualizacje. Biblioteka udostępnia funkcję \lstinline{combineReducers}, przyjmującą wszystkie funkcje, które mają posłużyć jako reducer. Po przysłaniu akcji funkcja przesyła ją do wszystkich określonych w niej funkcji aktualizujących, a następnie zbiera wyniki do jednego obiektu.
+\begin{figure}[h]
+	\centering
+	\includegraphics[height=0.38\textheight]{images/react_redux_data_flow}
+	\caption{Przepływ danych w kombinacji React i Redux}
+	\label{fig:reactReduxFlow}
+\end{figure}
+\FloatBarrier
+
 
 \section{Niemutowalność obiektów}
 
