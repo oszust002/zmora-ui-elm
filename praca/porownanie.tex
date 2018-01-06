@@ -147,16 +147,55 @@ Odpowiednikiem modelu jest pojedyncze drzewo stanu zawierające w sobie wszystki
 
 Tak jak w Elmie podstawową strukturą służącą do komunikowania o aktualizacji jest wiadomość, tak w przypadku Reduxa wykorzystywane są akcje. Są to zwykłe obiekty JavaScriptu posiadające informacje o rodzaju komunikatu, a także mogące posiadać dane wykorzystane do aktualizacji. W przeciwieństwie do Elma Redux nie posiada dodatkowych komunikatów służących do obsługi efektów ubocznych czy zdarzeń z zewnątrz, co zmusza programistę do skorzystania z innych bibliotek obsługujących takie zdarzenia. Przykładem tutaj może być biblioteka \textit{redux-saga}, służąca do obsługi efektów ubocznych \cite{reduxSaga}, która dodatkowo wspiera komunikację z Reduxem.
 
-Aktualizacja danych odbywa się za pomocą funkcji zwanych \textit{reducer'ami}. Są to funkcje bez efektów ubocznych, które na podstawie dotychczasowego stanu oraz akcji zwracają nowe, zaktualizowane drzewo stanu. W przypadku Reduxa programista nie jest zmuszony do tworzenia jednej funkcji odpowiadającej za wszystkie aktualizacje. Biblioteka udostępnia funkcję \lstinline{combineReducers}, przyjmującą wszystkie funkcje, które mają posłużyć jako reducer. Po przysłaniu akcji funkcja przesyła ją do wszystkich określonych w niej funkcji aktualizujących, a następnie zbiera wyniki do jednego obiektu.
 \begin{figure}[h]
 	\centering
-	\includegraphics[height=0.38\textheight]{images/react_redux_data_flow}
+	\includegraphics[height=0.37\textheight]{images/react_redux_data_flow}
 	\caption{Przepływ danych w kombinacji React i Redux}
 	\label{fig:reactReduxFlow}
 \end{figure}
 \FloatBarrier
 
 
-\section{Niemutowalność obiektów}
+Aktualizacja danych odbywa się za pomocą funkcji zwanych \textit{reducer'ami}. Są to funkcje bez efektów ubocznych, które na podstawie dotychczasowego stanu oraz akcji zwracają nowe, zaktualizowane drzewo stanu. W przypadku Reduxa programista nie jest zmuszony do tworzenia jednej funkcji odpowiadającej za wszystkie aktualizacje. Biblioteka udostępnia funkcję \lstinline{combineReducers}, przyjmującą wszystkie funkcje, które mają posłużyć jako reducer. Po przysłaniu akcji uruchamiane są wszystkie przekazane wcześniej funkcje, a wyniki z każdej z nich są wstawiane do jednego obiektu głównego, który reprezentuje całość stanu aplikacji.
 
-\section{Biblioteki i menedżery pakietów}
+W kombinacji Reacta i Reduxa za warstwę widoku odpowiadają komponenty, które, tak jak zostało to wcześniej opisane, można podzielić na kontenery i komponenty prezentacyjne. Jednak w przeciwieństwie do sposobu budowania widoku w Elmie, opartego na pojedynczej funkcji przyjmującej cały model aplikacji, to kontenery decydują o tym jakie informacje chcą pobrać z drzewa stanu. Odbywa się to przy pomocy specjalnie zdefiniowanej przez programistę funkcji \lstinline{mapStateToProps}, jako argument przyjmującej stan aplikacji, a zwracającą tylko oczekiwany przez kontener fragment danych. 
+
+To, co zaburza w pewien sposób jednokierunkowość przepływu danych oferowaną przez Reduxa, to lokalny stan komponentów. Zarówno komponenty prezentacyjne, jak i kontenery mają możliwość posiadania własnego stanu, przypisanego do konkretnej instancji komponentu. Stan taki jest całkowicie niezależny od drzewa stanu z Reduxa. Każda jego zmiana, odbywająca się poprzez funkcję \lstinline{setState}, przyjmującą jako argument nowy stan, powoduje odświeżenie widoku. Lokalny stan sprawia, że nie posiadamy już jednego źródła danych, co może doprowadzić do ich potencjalnej duplikacji. Z drugiej strony jednak, lokalny stan jest zwykle wykorzystywany do zarządzania opcjami widoku, które nie powinny być częścią źródła danych jakim jest drzewo stanów z Reduxa. Gdyby doszło do takiej sytuacji, to na każdą nową instancję komponentu przypadałby jeden nowy obiekt określający opcje widoku tego komponentu. Powodowałoby to szybki i niepotrzebny rozrost drzewa stanu.
+
+\section{Niemutowalność obiektów i ograniczenia typów}
+Ważnymi elementami architektury, które Elm udostępnia domyślnie, jest niemutowalność obiektów oraz silne typowanie. Obie te funkcjonalności znacząco wpływają na sposób modelowania danych już od samego początku tworzenia aplikacji. 
+
+\subsection{Silne typowanie w Elmie, a ograniczenia typów w React i Redux}
+Programista, tworząc model stanu aplikacji, jest zmuszony do określenia typu dla każdego z elementów. Także każda implementacja funkcji posiada z góry określone typy przyjmowanych argumentów oraz typ zwracanej struktury. Dzięki temu wszelkie niezgodności typów mogą zostać wykryte już na poziomie kompilacji kodu, niezależnie od tego, jak mocno zagłębiona jest różnica. Pozwala to na uniknięcie wystąpienia wyjątków w trakcie działania aplikacji. W przypadku kombinacji Reacta i Reduxa ograniczenie typów można uzyskać poprzez wykorzystanie rozszerzeń języka JavaScript, takie jak TypeScript. Dodatkowo React posiada wbudowane sprawdzanie typów w kontekście komponentów. Każdy z komponentów może posiadać zdefiniowane przez użytkownika właściwości, których typy można określić za pomocą dodatkowej opcji \lstinline{propTypes}. Dla każdej z właściwości można określić jeden z następujących typów:
+\begin{itemize}
+	\item Typy prymitywne JavaScriptu: typ logiczny, funkcja, liczba, obiekt, łańcuch znaków, symbol
+	\item Element Reacta -- mogą być to komponenty lub podstawowe elementy z języka HTML
+	\item Wieloelementowa struktura danych -- możemy określić jakiego typu są poszczególne elementy struktury
+	\item Typy niestandardowe -- zamiast typu podawana jest funkcja, która pozwala przeprowadzić walidację podanego obiektu pod względem zawartości czy nawet nazewnictwa
+	\item Typ dowolny -- właściwość określona tym typem nie posiada żadnych ograniczeń co do zawartości
+	\item Jeden z wielu -- jest to ograniczenie zarówno co do typu, jak i co do zawartości. Programista może zdefiniować do jakich konkretnych wartości, czy typów może ograniczać się podana właściwość
+\end{itemize}
+Typ zawiera także informację o tym czy dany element jest wymagany.
+
+\subsection{Niemutowalność obiektów}
+Niemutowalność obiektów zarówno w przypadku tworzenia aplikacji w języku Elm, jak i przy pomocy kombinacji Reacta i Reduxa, jest bardzo istotna ze względu na możliwości, które można zebrać w~trzech kategoriach: wydajność, przewidywalność oraz obserwowanie zmian. 
+
+Wprowadzenie modyfikacji do niemutowalnego obiektu oznacza, że należy utworzyć jego nową instancję, co może wydawać się kosztowną operacją, ponieważ w teorii wszystkie wartości muszą zostać skopiowane do nowego obiektu. Tak naprawdę, obiekty niemutowalne wykorzystują dzielenie struktur pomiędzy instancjami obiektu, co pozwala na znaczne zmniejszenie narzutu pamięci.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/structure_sharing}
+	\caption{Dzielenie struktur w obiektach niemutowalnych}
+	\label{fig:structSharing}
+\end{figure}
+Przykład, który obrazuje w jaki sposób działa dzielenie struktur w obiektach niemutowalnych można zobaczyć na rysunku \ref{fig:structSharing}. Dodanie elementu na początek listy tworzy nową instancję obiektu, jednak tak naprawdę część zawierająca elementy starej listy korzysta dokładnie ze struktury, która tworzyła starą instancję.
+
+Użycie obiektów niemutowalnych do stworzenia stanu aplikacji zapobiega przed nieoczekiwaną zmianą stanu. Gdyby stan był zbudowany z mutowalnych obiektów, to po pobraniu go do części aplikacji odpowiadających za widok, mogłoby dojść do nieoczekiwanej modyfikacji stanu. O ile w Elmie taka sytuacja jest niemożliwa z powodu domyślnego występowania obiektów niemutowalnych, o tyle w~przypadku połączenia Reacta i Reduxa takie połączenie jest możliwe. Pomimo tego, że dokumentacja Reduxa zawiera całą sekcję na temat użycia obiektów niemutowalnych, to niestety nie jest to domyślna funkcjonalność. Gdy komponent Reacta pobiera dane z drzewa stanu i wywoływana jest funkcja \lstinline{render} definiująca widok, to użytkownik może chcieć odfiltrować część niepotrzebnych danych. Aby nie tworzyć kolejnej zmiennej, przypisze odfiltrowane wartości do zmiennej zawierającej dane pobrane bezpośrednio ze stanu. W przypadku użycia obiektów mutowalnych wartości zawarte w stanie zostaną nadpisane, a zmiana nie będzie w żaden sposób widoczna z poziomu Reduxa.
+
+Śledzenie zmian obiektów niemutowalnych jest ważnym aspektem związanym z optymalizacją odświeżania widoku aplikacji. Zarówno Elm, jak i React udostępniają funkcje, które pozwalają określić, czy dany fragment widoku powinien zostać odświeżony. 
+
+W przypadku Elma jest to funkcja \lstinline{lazy}, która przyjmuje jako argumenty funkcję implementującą dany fragmentu widoku oraz opcje, które służą jako argumenty do tejże funkcji. \lstinline{lazy} przed wywołaniem funkcji budującej konfigurację widoku porównuje czy przekazane argumenty są w jakikolwiek sposób zmodyfikowne w stosunku do ich poprzednich wartości. Domyślna niemutowalnosć obiektów w Elmie pozwala na to, aby funkcja ta tak naprawdę porównywała wyłącznie referencje obiektów.
+
+Inaczej wygląda sytuacja w przypadku kombinacji Reacta i Reduxa. Każdy z komponentów może mieć zdefiniowaną funkcję \lstinline{shouldComponentUpdate} przyjmującą jako argumenty nowe wartości właściwości oraz lokalnego stanu. Jest ona uruchamiana przed odświeżeniem widoku i pozwala na ustalenie na podstawie nowych i starych wartości obiektów czy dany komponent powinien zostać odświeżony. Dodatkowo w przypadku kontenerów Redux dodaje automatyczne sprawdzenie wartości pobieranych z drzewa stanu, jednak nie są one porównywane w głąb. Programista zostaje więc zmuszony do zaimplementowania porównania w funkcji \lstinline{shouldComponentUpdate} w ten sposób, aby porównać wszystkie pola. Wprowadzenie niemutowalności obiektów rozwiązuje ten problem i sprawia, że porównanie zarówno właściwości, jak i lokalnego stanu komponentów sprowadza się, tak jak w Elmie, do porównania referencji obiektów, co znacznie zmniejsza koszt narzucany przez porównanie tych wartości przy każdym potencjalnym odświeżeniu komponentu.
+
+Jednym z rozwiązań umożliwiających użycie obiektów niemutowalnych jest proponowana przez dokumentację Reduxa biblioteka Immutable.js \cite{reduxDocs}. Udostępnia ona niemutowalne struktury, takie jak lista, stos, mapa, zbiór czy rekord. Pozwala także na konwersję zwykłych obiektów JavaScriptu na struktury niemutowalne udostępniane przez bibliotekę, a także konwersje w drugą stronę. Niestety biblioteka ta ma też wady, które zwiększają przede wszystkim wymagany nakład czasu poświęconego na modelowanie danych. Jednym z głównych problemów jest to, że jeżeli użytkownik chce w pełni skorzystać ze wzrostu wydajności, jaki oferuje biblioteka w kontekście porównywania obiektów, jest on zmuszony do zarządzania tym, aby każdy element w strukturze danych był obiektem z biblioteki Immutable.js. Powodem jest to, że biblioteka przy wykonaniu konwersji na zwykły obiekt JavaScriptu tworzy za każdym razem nową instancję tego obiektu. W przypadku pobrania nowej i starej wersji obiektu, w którym nie nastąpiły żadne zmiany, próba porównania za pomocą referencji zakończy się niepowodzeniem, nawet jeśli wartości pól wewnątrz obu obiektów są dokładnie takie same.
+
